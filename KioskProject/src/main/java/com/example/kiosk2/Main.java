@@ -1,4 +1,4 @@
-package com.example.kiosk;
+package com.example.kiosk2;
 
 import java.util.Scanner;
 
@@ -24,11 +24,12 @@ public class Main {
                 case 3:
                 case 4:
                     //받은값에 따라 햄버거 추가
+                    kiosk.showSelectedBurgerMenu(input-1);
                     break;
                 default:
                     break;
             }
-            if(input == 0)
+            if(input == 0) //0을 입력받으면 종료
                 break;
         }
         System.out.println("프로그램을 종료합니다.");
