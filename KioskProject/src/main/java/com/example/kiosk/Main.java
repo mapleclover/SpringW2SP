@@ -17,12 +17,7 @@ public class Main {
         {
             kiosk.showBurgerMenu(); //메뉴 보여주기
 
-            while (!sc.hasNextInt()) {
-                sc.next();
-                System.out.println("잘못 입력하셨습니다.");
-            }
-
-            input  = sc.nextInt();
+            input  = getValidInput(sc); //Input 유효성 검사
 
             switch (input) {
                 case 1:
@@ -38,5 +33,14 @@ public class Main {
             }
         }
         System.out.println("프로그램을 종료합니다.");
+    }
+
+    private static int getValidInput(Scanner sc){
+        while(!sc.hasNextInt())
+        {
+            sc.next();
+            System.out.println("잘못 입력하셨습니다. 숫자를 입력하세요.");
+        }
+        return sc.nextInt();
     }
 }
