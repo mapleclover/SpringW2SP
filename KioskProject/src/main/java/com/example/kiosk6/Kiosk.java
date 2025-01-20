@@ -3,6 +3,7 @@ package com.example.kiosk6;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
 
@@ -184,7 +185,7 @@ public class Kiosk {
         totalPrice = 0f;
         logger.info("[  Orders  ]");
         List<ShoppingCartItem> cartItems = shoppingCart.getMenuItems();
-        cartItems.forEach(cartItem -> {
+        cartItems.stream().sorted(Comparator.comparing(ShoppingCartItem::getMenuType)).forEach(cartItem -> {
             totalPrice += cartItem.getPrice() * cartItem.getCount();
             String temp = String.format("%-15s | W %.1f | 수량 : %d | %s", cartItem.getName(), cartItem.getPrice(), cartItem.getCount() ,cartItem.getDescription());
             logger.info(temp);
@@ -222,7 +223,9 @@ public class Kiosk {
                 moveToSelectedMenu(userInput);
                 break;
             case BURGERS_SELECTION:
-                showSelectedBurgerMenu(userInput);
+            case DRINKS_SELECTION:
+            case DESSERTS_SELECTION:
+                showSelectedMenu(userInput);
                 break;
             case ORDER_MENU:
                 decideOrder(userInput);
@@ -245,6 +248,7 @@ public class Kiosk {
     public void moveToSelectedMenu(int userInput) {
         if(userInput == 0){
             kioskStatus = KioskStatus.CLOSE;
+            return;
         }
 
         //쇼핑카트가 비어있으면 디저트메뉴까지만 접근가능, 비어있지않으면 오더 취소 메뉴까지 접근가능
@@ -259,14 +263,30 @@ public class Kiosk {
         }
     }
 
-    //선택한 버거 메뉴를 알림하는 키오스크
-    public void showSelectedBurgerMenu(int userInput) {
+    //선택한 메뉴를 알려주는 키오스크
+    public void showSelectedMenu(int userInput) {
+        //메뉴 선택창에서 0번이 입력되면 메인메뉴로 돌아가기
+        if(userInput == 0){
+            kioskStatus = KioskStatus.MAIN_MENU;
+            logger.info("메인 메뉴로 돌아갑니다.");
+            return;
+        }
+
+        //유저인풋을 배열위치로 변경을 위한 -1
         int convertInput = userInput - 1;
-        if (menu.getMenuItemsByType(MenuType.BURGERS).size() <= convertInput) {
+        //현재 키오스크의 상태에 따라 가져올 메뉴타입 선정
+        MenuType currentMenuType=  switch (kioskStatus) {
+            case BURGERS_SELECTION -> MenuType.BURGERS;
+            case DRINKS_SELECTION -> MenuType.DRINKS;
+            case DESSERTS_SELECTION -> MenuType.DESSERTS;
+            default -> MenuType.NONE;
+        };
+
+        if (menu.getMenuItemsByType(currentMenuType).size() <= convertInput) {
             logger.info("존재하지 않는 메뉴입니다.");
             return;
         }
-        selectedMenu = menu.getMenuItemsByType(MenuType.BURGERS).get(convertInput);
+        selectedMenu = menu.getMenuItemsByType(currentMenuType).get(convertInput);
         String temp = String.format("선택한 메뉴 : %s 는 %s 입니다. 가격은 W %.1f 입니다.\n", selectedMenu.getName(), selectedMenu.getDescription(), selectedMenu.getPrice());
         logger.info(temp);
         kioskStatus = KioskStatus.CONFIRM_ITEM;

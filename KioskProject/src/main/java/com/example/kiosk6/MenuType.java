@@ -4,5 +4,6 @@ package com.example.kiosk6;
 public enum MenuType {
     BURGERS,
     DRINKS,
-    DESSERTS
+    DESSERTS,
+    NONE
 }
